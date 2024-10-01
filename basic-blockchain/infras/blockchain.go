@@ -73,6 +73,11 @@ func NewBlockchain(dbFile, blocksBucket string) (*Blockchain, error) {
 	return bc, nil
 }
 
+// 关闭数据库连接
+func (bc *Blockchain) Close() {
+	bc.db.Close()
+}
+
 // AddBlock 添加区块
 func (bc *Blockchain) AddBlock(data string) error {
 	var lastHash []byte

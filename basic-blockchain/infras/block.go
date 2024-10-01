@@ -56,7 +56,7 @@ func (b *Block) Serialize() ([]byte, error) {
 // DeserializeBlock 反序列化数据
 func DeserializeBlock(data []byte) (*Block, error) {
 	var block Block
-	
+
 	decoder := gob.NewDecoder(bytes.NewReader(data))
 	err := decoder.Decode(&block)
 	if err != nil {

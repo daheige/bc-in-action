@@ -13,6 +13,7 @@ func main() {
 		fmt.Println("new blockchain err: ", err)
 		return
 	}
+	defer bc.Close()
 
 	cli := infras.NewCLI(bc)
 	cli.Run()
