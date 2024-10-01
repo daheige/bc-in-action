@@ -41,6 +41,7 @@ func NewBlock(data string, prevHash string) *Block {
 }
 
 // Serialize 序列化数据
+// 使用gob格式对数据序列化处理
 func (b *Block) Serialize() ([]byte, error) {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
@@ -55,7 +56,7 @@ func (b *Block) Serialize() ([]byte, error) {
 // DeserializeBlock 反序列化数据
 func DeserializeBlock(data []byte) (*Block, error) {
 	var block Block
-
+	
 	decoder := gob.NewDecoder(bytes.NewReader(data))
 	err := decoder.Decode(&block)
 	if err != nil {

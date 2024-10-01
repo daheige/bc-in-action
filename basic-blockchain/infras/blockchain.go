@@ -125,7 +125,7 @@ type BlockchainIterator struct {
 // 在获得一个 tip （可以是链中的任意一个块）之后，我们就可以重新构造整条链，找到它的长度和需要构建它的工作。
 // 这同样也意味着，一个 tip 也就是区块链的一种标识符。
 func (bc *Blockchain) Iterator() *BlockchainIterator {
-	bci := &BlockchainIterator{bc.tip, bc.db, bc.blocksBucket}
+	bci := &BlockchainIterator{currentHash: bc.tip, db: bc.db, blocksBucket: bc.blocksBucket}
 	return bci
 }
 
