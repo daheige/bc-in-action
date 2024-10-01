@@ -1,6 +1,8 @@
 package infras
 
 import (
+	"bytes"
+	"encoding/gob"
 	"encoding/hex"
 	"time"
 )
@@ -36,4 +38,29 @@ func NewBlock(data string, prevHash string) *Block {
 	block.Nonce = nonce
 
 	return block
+}
+
+// Serialize 序列化数据
+func (b *Block) Serialize() ([]byte, error) {
+	var result bytes.Buffer
+	encoder := gob.NewEncoder(&result)
+	err := encoder.Encode(b)
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Bytes(), nil
+}
+
+// DeserializeBlock 反序列化数据
+func DeserializeBlock(data []byte) (*Block, error) {
+	var block Block
+
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	err := decoder.Decode(&block)
+	if err != nil {
+		return nil, err
+	}
+
+	return &block, nil
 }

@@ -261,3 +261,52 @@ pow validate end
 blot官方介绍：https://github.com/boltdb/bolt
 - Bolt 是一个纯键值存储的 Go 数据库，启发自 Howard Chu 的 LMDB. 它旨在为那些无须一个像 Postgres 和 MySQL 这样有着完整数据库服务器的项目，提供一个简单，快速和可靠的数据库。
 - 由于 Bolt 意在用于提供一些底层功能，简洁便成为其关键所在。它的 API 并不多，并且仅关注值的获取和设置。仅此而已。
+
+听起来跟我们的需求完美契合！来快速过一下：
+
+- Bolt 使用键值存储，这意味着它没有像 SQL RDBMS （MySQL，PostgreSQL 等等）的表，没有行和列。相反，数据被存储为键值对（key-value pair，就像 Golang 的 map）。键值对被存储在 bucket 中，这是为了将相似的键值对进行分组（类似 RDBMS 中的表格）。
+- 因此，为了获取一个值，你需要知道一个 bucket 和一个键（key）。
+- 需要注意的一个事情是，Bolt 数据库没有数据类型：键和值都是字节数组（byte array）。鉴于需要在里面存储 Go 的结构（准确来说，也就是存储Block（块）），我们需要对它们进行序列化，也就说，实现一个从 Go struct 转换到一个 byte array 的机制，同时还可以从一个 byte array 再转换回 Go struct。
+- 虽然我们将会使用 encoding/gob 来完成这一目标，但实际上也可以选择使用 JSON, XML, Protocol Buffers 等等。之所以选择使用 encoding/gob, 是因为它很简单，而且是 Go 标准库的一部分。
+
+虽然blot不再活跃，但是有活跃的fork版本：https://github.com/etcd-io/bbolt
+
+# 数据库结构
+在开始实现持久化的逻辑之前，我们首先需要决定到底要如何在数据库中进行存储。为此，我们可以参考 Bitcoin Core 的做法：
+
+简单来说，Bitcoin Core 使用两个 “bucket” 来存储数据：
+- 其中一个 bucket 是 blocks，它存储了描述一条链中所有块的元数据
+- 另一个 bucket 是 chainstate，存储了一条链的状态，也就是当前所有的未花费的交易输出，和一些元数据
+
+此外，出于性能的考虑，Bitcoin Core 将每个区块（block）存储为磁盘上的不同文件。如此一来，就不需要仅仅为了读取一个单一的块而将所有（或者部分）的块都加载到内存中。
+
+# 序列化处理
+```go
+// Serialize 序列化数据
+func (b *Block) Serialize() ([]byte, error) {
+	var result bytes.Buffer
+	encoder := gob.NewEncoder(&result)
+	err := encoder.Encode(b)
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Bytes(), nil
+}
+
+// DeserializeBlock 反序列化数据
+func DeserializeBlock(data []byte) (*Block, error) {
+	var block Block
+
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	err := decoder.Decode(&block)
+	if err != nil {
+		return nil, err
+	}
+
+	return &block, nil
+}
+```
+
+# 持久化
+使用 bolt "go.etcd.io/bbolt" 实现
