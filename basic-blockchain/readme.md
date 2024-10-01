@@ -310,3 +310,64 @@ func DeserializeBlock(data []byte) (*Block, error) {
 
 # 持久化
 使用 bolt "go.etcd.io/bbolt" 实现
+
+# 命令行接口
+```shell
+make build && make test
+```
+输出结果：
+```
+====> Go build
+./basic-blockchain printchain
+No existing blockchain found. Creating a new blockchain...
+Mining the block containing "Genesis Block"
+hash: 00000044a7514c43349332f30edddc610429f3b2031e7f7bda8fd1f82b7147c4
+
+Previous hash: 
+Data: Genesis Block
+Hash: 00000044a7514c43349332f30edddc610429f3b2031e7f7bda8fd1f82b7147c4
+pow validate begin...
+PoW: true
+pow validate end
+
+./basic-blockchain addblock -data "send 1 btc to van"
+Mining the block containing "send 1 btc to van"
+hash: 000000170c6c948b4469ad0b7455e7070d63ed94e0a716a30081db84c3d4b381
+
+./basic-blockchain addblock -data "send 2 btc to alex"
+Mining the block containing "send 2 btc to alex"
+hash: 000000734cda8779ba25d2e921d7a0dcc7acaaaed8701dd1d40d1d9383358d83
+
+./basic-blockchain addblock -data "send 3 more btc to van"
+Mining the block containing "send 3 more btc to van"
+hash: 000000e6072d67c2cfc1e7703b6fc96605275eaedac355ad11bede35fb1f4c61
+
+./basic-blockchain printchain
+Previous hash: 000000734cda8779ba25d2e921d7a0dcc7acaaaed8701dd1d40d1d9383358d83
+Data: send 3 more btc to van
+Hash: 000000e6072d67c2cfc1e7703b6fc96605275eaedac355ad11bede35fb1f4c61
+pow validate begin...
+PoW: true
+pow validate end
+
+Previous hash: 000000170c6c948b4469ad0b7455e7070d63ed94e0a716a30081db84c3d4b381
+Data: send 2 btc to alex
+Hash: 000000734cda8779ba25d2e921d7a0dcc7acaaaed8701dd1d40d1d9383358d83
+pow validate begin...
+PoW: true
+pow validate end
+
+Previous hash: 00000044a7514c43349332f30edddc610429f3b2031e7f7bda8fd1f82b7147c4
+Data: send 1 btc to van
+Hash: 000000170c6c948b4469ad0b7455e7070d63ed94e0a716a30081db84c3d4b381
+pow validate begin...
+PoW: true
+pow validate end
+
+Previous hash: 
+Data: Genesis Block
+Hash: 00000044a7514c43349332f30edddc610429f3b2031e7f7bda8fd1f82b7147c4
+pow validate begin...
+PoW: true
+pow validate end
+```

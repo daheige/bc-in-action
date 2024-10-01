@@ -20,7 +20,7 @@ type Block struct {
 
 // NewGenesisBlock 创建创世区块 genesis block，也就是区块链中的第一个block块
 func NewGenesisBlock() *Block {
-	return NewBlock("Genesis Block", "0")
+	return NewBlock("Genesis Block", "")
 }
 
 // NewBlock 创建一个区块block
